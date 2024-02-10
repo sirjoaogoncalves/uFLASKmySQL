@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Client</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-5">Edit Client</h2>
+        <form method="post">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ client['name'] }}" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ client['email'] }}" required>
+            </div>
+            <div class="form-group">
+                <label for="service">Select Service:</label>
+                <select class="form-control" id="service" name="service">
+                    {% for service in services %}
+                        <option value="{{ service[0] }}" {% if client['service_id'] == service[0] %} selected {% endif %}>{{ service[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Client</button>
+        </form>
+    </div>
+</body>
+</html>
+

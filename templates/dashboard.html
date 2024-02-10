@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+ 
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">uFLASKmySQL</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Logged in as: {{ session['username'] }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 class="mt-5">Dashboard</h2>
+        <form method="GET" action="{{ url_for('dashboard') }}" class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search by Client Name" aria-label="Search" name="query">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+        {% if is_admin %}
+            <div class="mb-3">
+                <a href="{{ url_for('add_client') }}" class="btn btn-primary">Add Client</a>
+                <a href="{{ url_for('add_service') }}" class="btn btn-primary">Add Service</a>
+            </div>
+        {% endif %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Service</th>  
+                    {% if is_admin %}
+                        <th>Action</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                    <tr>
+                        <td>{{ client.id }}</td>
+                        <td>{{ client.name }}</td>
+                        <td>{{ client.email }}</td>
+                        <td>{{ client.service_name }}</td>  
+                        {% if is_admin %}
+                            <td>
+                                <a href="{{ url_for('edit_client', id=client.id) }}" class="btn btn-sm btn-info">Edit</a>
+                                <a href="{{ url_for('delete_client', id=client.id) }}" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="mt-3">
+            <a href="{{ url_for('export_to_excel') }}" class="btn btn-success">Export to Excel</a>
+        </div>
+        <h2 class="mt-5">Most Used Services</h2>
+            <div>
+                {{ plot_url | safe }}      
+            </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+ 
+</body>
+</html>
+
