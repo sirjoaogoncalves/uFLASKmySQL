@@ -14,6 +14,7 @@ app.secret_key = "super secret key"
 def create_connection():
     return mysql.connector.connect(**db_config)
 
+
 # Function to check if the user is an admin
 def is_admin():
     if 'username' in session:
@@ -145,15 +146,15 @@ def add_client():
             conn.close()
             flash('Client added successfully', 'success')
             return redirect(url_for('dashboard'))
-        
+
         # Fetch services data
         conn = create_connection()
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM services')
         services = cursor.fetchall()
         cursor.close()
-        conn.close()
-        
+        conn.close() 
+
         return render_template('add_client.html', services=services)
     else:
         flash('You are not authorized to access this page.', 'error')
@@ -197,7 +198,6 @@ def edit_client(id):
     else:
         flash('You are not authorized to access this page.', 'error')
         return redirect(url_for('dashboard'))
-
 
 
 @app.route('/clients/delete/<int:id>')
@@ -272,6 +272,7 @@ def edit_service(id):
     else:
         flash('You are not authorized to access this page.', 'error')
         return redirect(url_for('dashboard'))
+
 
 @app.route('/services/delete/<int:id>')
 def delete_service(id):
