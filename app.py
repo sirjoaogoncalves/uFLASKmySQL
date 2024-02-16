@@ -29,7 +29,7 @@ def is_admin():
     return False
 
 
-# Function to generate plot of most used services
+
 def generate_plot():
     try:
         conn = create_connection()
@@ -39,13 +39,13 @@ def generate_plot():
         cursor.close()
         conn.close()
 
-        # Extract service names and counts from query result
+       
         services = [row[0] for row in service_data]
         counts = [row[1] for row in service_data]
 
-        # Create a Plotly bar chart
+       
         fig = go.Figure(data=[go.Bar(x=services, y=counts)])
-        fig.update_layout(title='Most Used Services', xaxis_title='Service', yaxis_title='Number of Clients')
+        fig.update_layout(xaxis_title='Service', yaxis_title='Number of Clients')
 
         # Convert the Plotly figure to HTML
         plot_div = fig.to_html(full_html=False)
@@ -125,7 +125,7 @@ def dashboard():
         if is_admin():
             return render_template('dashboard.html', clients=clients, plot_url=generate_plot(), is_admin=is_admin)
         else:
-            return render_template('user_page.html', clients=clients, is_admin=is_admin)
+            return render_template('user_page.html', clients=clients, plot_url=generate_plot() ,is_admin=is_admin)
     return redirect(url_for('login'))
 
 
@@ -237,41 +237,48 @@ def add_service():
         return redirect(url_for('dashboard'))
 
 
-@app.route('/services/edit/<int:id>', methods=['GET', 'POST'])
-def edit_service(id):
+@app.route('/services/edit', methods=['GET', 'POST'])
+def edit_services():
     if is_admin():
         if request.method == 'GET':
             conn = create_connection()
             cursor = conn.cursor()
-            cursor.execute('SELECT * FROM services WHERE id = %s', (id,))
-            service = cursor.fetchone()
+            cursor.execute('SELECT * FROM services')
+            services = cursor.fetchall()
             cursor.close()
             conn.close()
-            if service:
-                service_dict = {
-                    'id': service[0],
-                    'name': service[1],
-                    'description': service[2]
-                }
-                return render_template('edit_service.html', service=service_dict)
+            
+            if services:
+                services_list = []
+                for service in services:
+                    service_dict = {
+                        'id': service[0],
+                        'name': service[1]}
+                    services_list.append(service_dict)
+                
+                return render_template('edit_services.html', services=services_list)
             else:
-                flash('Service not found', 'error')
+                flash('No services found', 'info')
                 return redirect(url_for('dashboard'))
         elif request.method == 'POST':
-            name = request.form['name']
+            service_id = request.form['serviceSelect'] 
             description = request.form['description']
-            # Update service in the database
+            
+           
             conn = create_connection()
             cursor = conn.cursor()
-            cursor.execute('UPDATE services SET name = %s, description = %s WHERE id = %s', (name, description, id))
+            cursor.execute('UPDATE services SET description = %s WHERE id = %s', (description, service_id))
             conn.commit()
             cursor.close()
             conn.close()
+            
             flash('Service updated successfully', 'success')
             return redirect(url_for('dashboard'))
+        pass
     else:
         flash('You are not authorized to access this page.', 'error')
         return redirect(url_for('dashboard'))
+
 
 
 @app.route('/services/delete/<int:id>')

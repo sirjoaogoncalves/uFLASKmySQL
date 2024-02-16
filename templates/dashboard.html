@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
- 
+   
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -27,20 +27,21 @@
         </div>
     </nav>
 
-    <div class="container">
-        <h2 class="mt-5">Dashboard</h2>
+    <div class="container border border-5">
+        
         <form method="GET" action="{{ url_for('dashboard') }}" class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search by Client Name" aria-label="Search" name="query">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search by Client Name.." aria-label="Search" name="query">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
         {% if is_admin %}
             <div class="mb-3">
                 <a href="{{ url_for('add_client') }}" class="btn btn-primary">Add Client</a>
                 <a href="{{ url_for('add_service') }}" class="btn btn-primary">Add Service</a>
+                <a href="{{ url_for('edit_services') }}" class="btn btn-warning">Edit services</a>
             </div>
         {% endif %}
-        <table class="table">
-            <thead>
+        <table class="table table-hover">
+            <thead class="table-dark">
                 <tr>
                     <th>ID</th>
                     <th>Client Name</th>

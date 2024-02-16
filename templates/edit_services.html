@@ -11,13 +11,19 @@
         <h2 class="mt-5">Edit Service</h2>
         <form method="post">
             <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ service.name }}" required>
-            </div>
-            <div class="form-group">
+                <label for="serviceSelect">Select Service:</label>
+                <select class="form-control" id="serviceSelect" name="serviceSelect" required>
+                    {% for service in services %}
+                        <option value="{{ service.id }}">{{ service.name }}</option>
+                        
+                    {% endfor %}
+                </select>
                 <label for="description">Description:</label>
-                <textarea class="form-control" id="description" name="description" rows="3" required>{{ service.description }}</textarea>
+                <textarea class="form-control" id="description" name="description" rows="3" required>{{ services.description }}</textarea>
             </div>
+         
+        
+            
             <button type="submit" class="btn btn-primary">Update Service</button>
         </form>
     </div>
