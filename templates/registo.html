@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Register</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-
     <style>
         body {
             background: linear-gradient(45deg, #667eea, #764ba2);
@@ -65,7 +63,7 @@
 <body>
     <div class="card">
         <div class="card-body">
-            <h2 class="card-title mb-4">Login</h2>
+            <h2 class="card-title mb-4">Registo De Utilizador</h2>
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
                     <div class="alert alert-danger" role="alert">
@@ -75,7 +73,7 @@
                     </div>
                 {% endif %}
             {% endwith %}
-            <form method="post">
+            <form action="{{ url_for('register') }}" method="post">
                 <div class="form-group">
                     <label for="username">Username:</label>
                     <input type="text" class="form-control" id="username" name="username" required>
@@ -84,9 +82,8 @@
                     <label for="password">Password:</label>
                     <input type="password" class="form-control" id="password" name="password" required>
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Login</button>
-                <!-- Botão para criar utilizador -->
-                <a href="{{url_for('register')}}" class="btn btn-secondary mt-3">Criar Utilizador</a>
+                <button type="submit" class="btn btn-primary mt-3">Sign In</button>
+                <a href="{{url_for('login')}}" class="btn btn-primary mt-3">Login</a>
             </form>
         </div>
     </div>

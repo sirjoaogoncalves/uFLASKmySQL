@@ -4,6 +4,11 @@ import plotly.graph_objs as go
 import pandas as pd
 from flask import send_file
 from config import db_config
+import requests
+from bs4 import BeautifulSoup
+import wikipedia 
+
+
 
 app = Flask(__name__)
 
@@ -45,7 +50,7 @@ def generate_plot():
 
        
         fig = go.Figure(data=[go.Bar(x=services, y=counts)])
-        fig.update_layout(xaxis_title='Service', yaxis_title='Number of Clients')
+        fig.update_layout(xaxis_title='Serviços', yaxis_title='Numero de Clientes')
 
         # Convert the Plotly figure to HTML
         plot_div = fig.to_html(full_html=False)
@@ -55,24 +60,81 @@ def generate_plot():
         print("Error generating plot:", e)
         return ""
 
+def scrape_news():
+    # Fetch the HTML content from the website
+    response = requests.get('https://www.cmjornal.pt/cm-ao-minuto')
+    content = response.content
+
+    # Parse the HTML content
+    site = BeautifulSoup(content, 'html.parser')
+
+    # Find the main news section
+    noticias = site.find_all('div', attrs={'class': 'aominutoMain'})
+
+    # Create a list to store the news items
+    news_list = []
+
+    # Iterate over each news item and extract the title, publication date, and link
+    for noticia in noticias:
+        titulo = noticia.find('span', attrs={'class': 'lead'})
+        h2_tag = noticia.find('h2')  # Find the <h2> tag
+
+        # Extract the date and link from within the <h2> tag
+        date = h2_tag.text.strip() if h2_tag else ''
+        link = h2_tag.find('a', href=True)  # Find the <a> tag within the <h2> tag
+        news_link = link['href'] if link else ''
+
+        # Check if the title exists
+        title = titulo.text.strip() if titulo else ''
+
+        # Add the news item to the list
+        news_list.append({'title': title, 'date': date, 'link': news_link})
+
+    # Return the last five news items
+    return news_list[-5:]
+
+       
+
+@app.route('/search', methods=['GET', 'POST'])
+def search_wikipedia():
+    # Return the last fi
+    query = request.form['query']
+    language = request.form.get('language', 'en')  
+    try: 
+        wikipedia.set_lang(language)
+        result = wikipedia.summary(query, sentences=2)
+        return render_template('search_results.html', result=result)
+    except wikipedia.exceptions.DisambiguationError as e:
+        return render_template('search_results.html', result=str(e))
+    except wikipedia.exceptions.PageError as e:
+        return render_template('search_results.html', result=str(e))
+
+
 
 @app.route('/')
 def index():
     if 'username' in session:
-        # Generate the Plotly plot
-        plot_div = generate_plot()
-
+        query = request.args.get('query')
+       
         # Fetch services data
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM services')
-        services = cursor.fetchall()
+        if query:
+            cursor.execute('SELECT clients.id, clients.name, clients.email, services.name AS service_name FROM clients LEFT JOIN services ON clients.service_id = services.id WHERE clients.name LIKE %s', ('%' + query + '%',))
+        else:
+            cursor.execute('SELECT clients.id, clients.name, clients.email, services.name AS service_name FROM clients LEFT JOIN services ON clients.service_id = services.id')
+        clients = cursor.fetchall()  # Fetch all rows as tuples
         cursor.close()
         conn.close()
+        
+        clients = [{'id': row[0], 'name': row[1], 'email': row[2], 'service_name': row[3]} for row in clients]
 
-        # Render the template with services data and plot_div
-        return render_template('dashboard.html', services=services, plot_div=plot_div)
+        if is_admin():
+            return render_template('dashboard.html', clients=clients, plot_url=generate_plot(), is_admin=is_admin)
+        else:
+            return render_template('user_page.html', clients=clients, plot_url=generate_plot() ,is_admin=is_admin)
     return redirect(url_for('login'))
+    
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -122,12 +184,21 @@ def dashboard():
         # Structure data correctly as dictionaries
         clients = [{'id': row[0], 'name': row[1], 'email': row[2], 'service_name': row[3]} for row in clients]
 
+               
         if is_admin():
             return render_template('dashboard.html', clients=clients, plot_url=generate_plot(), is_admin=is_admin)
         else:
-            return render_template('user_page.html', clients=clients, plot_url=generate_plot() ,is_admin=is_admin)
+            return render_template('user_page.html', clients=clients, plot_url=generate_plot(), news = scrape_news() ,is_admin=is_admin)
     return redirect(url_for('login'))
 
+@app.route('/noticias')
+def noticias_page():
+    news = scrape_news()
+    news = news[-5:]
+    if is_admin():
+        return render_template('noticias.html', plot_url=generate_plot(), is_admin=is_admin)
+    else:
+        return render_template('noticias.html', plot_url=generate_plot(), news = news ,is_admin=is_admin)
 
 # CRUD operations for clients
 @app.route('/clients/add', methods=['GET', 'POST'])
@@ -273,8 +344,7 @@ def edit_services():
             conn.close()
             
             flash('Service updated successfully', 'success')
-            return redirect(url_for('dashboard'))
-        pass
+            return redirect(url_for('dashboard')) 
     else:
         flash('You are not authorized to access this page.', 'error')
         return redirect(url_for('dashboard'))
@@ -294,6 +364,26 @@ def delete_service(id):
     else:
         flash('You are not authorized to access this page.', 'error')
     return redirect(url_for('dashboard'))
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (username, password))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        flash('Registo efetuado com sucesso', 'success')
+        return redirect(url_for('login'))  # Redirect to login page after successful registration
+
+    return render_template('registo.html')  # Render the registration page
+
 
 
 @app.route('/export')

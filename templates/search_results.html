@@ -1,24 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" lang="en" data-bs-theme="dark">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>uFLASKmySQL</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Resultados de pesquisa</title>
+   
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
-    body.dark-mode {
-        background-color: #222;
-        color: #f0f0f0;
-    }
-    #themeToggle {
-        background-color: transparent;
-        border: none;
-        cursor: pointer;
-    }
+    <style>
+      body.dark-mode {
+          background-color: #222;
+          color: #f0f0f0;
+      }
+      #themeToggle {
+          background-color: transparent;
+          border: none;
+          cursor: pointer;
+      }
 
-    .btn {
+      .btn {
         padding: 10px 20px; /* Increase button padding */
     }
     .btn:hover {
@@ -69,8 +68,8 @@
         margin: 0 auto;
         padding: 20px;
     } 
-
-  </style> 
+  
+    </style> 
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -92,61 +91,22 @@
             </div>
         </div>
     </nav>
-
     <div class="container border border-5">
-        
-        <form method="GET" action="{{ url_for('dashboard') }}" class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Pesquisar por nome..." aria-label="Search" name="query">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Pesquisar</button>
-        </form>
-        {% if is_admin %}
-            <div class="mb-3">
-                <a href="{{ url_for('add_client') }}" class="btn btn-primary">Adicionar Cliente</a>
-                <a href="{{ url_for('add_service') }}" class="btn btn-warning">Adicionar Serviço</a>
-                <a href="{{ url_for('edit_services') }}" class="btn btn-warning">Editar Serviços</a>
+        <h1 class="text-center my-4">Resultados:</h1>
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <p class="lead">{{ result }}</p>
             </div>
-        {% endif %}
-        <table class="table table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Cliente</th>
-                    <th>Email</th>
-                    <th>Serviços</th>  
-                    {% if is_admin %}
-                        <th></th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for client in clients %}
-                    <tr>
-                        <td>{{ client.id }}</td>
-                        <td>{{ client.name }}</td>
-                        <td>{{ client.email }}</td>
-                        <td>{{ client.service_name }}</td>  
-                        {% if is_admin %}
-                            <td class="btn-group" role="group">
-                                <a href="{{ url_for('edit_client', id=client.id) }}" class="btn btn-sm btn-info ">Editar</a>
-                                <a href="{{ url_for('delete_client', id=client.id) }}" class="btn btn-sm btn-danger">Apagar</a>
-                            </td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div class="mt-3">
-            <a href="{{ url_for('export_to_excel') }}" class="btn btn-success">Exportar para Excel</a>
         </div>
-        <h2 class="mt-5">Serviços mais usados</h2>
-            <div>
-                {{ plot_url | safe }}      
-            </div>
+      
+        <div class="text-center">
+            <a href="{{url_for('noticias_page')}}" class="btn btn-primary">Voltar</a>
+        </div>
     </div>
-    <!-- templates/dashboard.html -->
-    <!-- Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script>
         function setCookie(name, value, days) {
             var expires = "";
@@ -200,8 +160,5 @@
             }
         });
     </script>
-    
-    
 </body>
 </html>
-
